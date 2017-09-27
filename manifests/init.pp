@@ -44,9 +44,7 @@
 #  $automount = false - Controls the option to configure automounter maps in LDAP.
 #  $autofs = false - Controls the option to start the autofs service and install the autofs package.
 #  $svrpkg = 'ipa-server' - IPA server package.
-#  $clntpkg = 'ipa-client' - IPA client package.
 #  $ldaputils = true - Controls the instalation of the LDAP utilities package.
-#  $ldaputilspkg = 'openldap-clients' - LDAP utilities package.
 #
 # === Variables
 #
@@ -101,30 +99,34 @@ class ipa (
   $automount     = false,
   $autofs        = false,
   $svrpkg        = 'ipa-server',
-  $clntpkg       = $::osfamily ? {
-    Debian  => 'freeipa-client',
-    default => 'ipa-client',
-  },
   $ldaputils     = true,
-  $ldaputilspkg  = $::osfamily ? {
-    Debian  => 'ldap-utils',
-    default => 'openldap-clients',
-  },
   $idstart       = false
 ) {
 
+  case $::osfamily {
+    'RedHat': {
+      package { [
+        'ipa-client',
+        'openldap-clients',
+      ],
+        ensure => installed,
+      }
+    }
+    'Debian': {
+      package { [
+        'freeipa-client',
+        'ldap-utils',
+      ],  
+        ensure => installed,
+      }
+    }
+    default: {
+      fail("${::osfamily} unsupported.")
+    }
+  }
+
   @package { $ipa::svrpkg:
     ensure => installed
-  }
-
-  @package { $ipa::clntpkg:
-    ensure => installed
-  }
-
-  if $ipa::ldaputils {
-    @package { $ipa::ldaputilspkg:
-      ensure => installed
-    }
   }
 
   if $ipa::sssdtools {
