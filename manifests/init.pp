@@ -108,7 +108,7 @@ class ipa (
       package { [
         'ipa-client',
         'openldap-clients',
-      ],
+      ]
         ensure => installed,
       }
     }
@@ -116,7 +116,7 @@ class ipa (
       package { [
         'freeipa-client',
         'ldap-utils',
-      ],  
+      ]
         ensure => installed,
       }
     }
